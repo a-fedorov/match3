@@ -10,7 +10,7 @@ Match3Game.Preload.prototype = {
 		this.load.setPreloadSprite(this.preloadBar);
 
 		this.load.spritesheet("GEMS", "/assets/sprites/sprite_b.png", this.game.GEM_SIZE, this.game.GEM_SIZE);
-		this.load.image('space', 'assets/space.png');
+		// this.load.image('space', 'assets/images/space.png');
 
 	},
 

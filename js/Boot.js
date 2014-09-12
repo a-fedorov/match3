@@ -4,13 +4,13 @@ Match3Game.Boot = function(){};
 
 Match3Game.Boot.prototype = {
 	preload: function(){
-		this.load.image('preloadbar', '/assets/preload-bar.png');
+		this.load.image('preloadbar', '/assets/images/preload-bar.png');
 	},
 
 	create: function(){
 		this.game.stage.backgroundColor = '#fff';
 
-		// this.game.physics.startSystem(Phaser.Physics.ARCADE);
+		this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
 		this.game.GEM_SIZE = 80;
 		this.game.GEM_SPACING = 5;

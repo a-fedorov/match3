@@ -18,7 +18,12 @@ Match3Game.Game.prototype = {
 		this.firstPick = 0;
 		this.prevIndex = -1;
 		this.prevGem = 0;
+		this.selected = [];
 	},
+
+	update: function(){
+	},
+
 
 	spawnBoard: function(){
 
@@ -26,6 +31,7 @@ Match3Game.Game.prototype = {
 		this.game.BOARD_ROWS = Phaser.Math.floor(this.game.world.height / this.game.GEM_SIZE_SPACED);
 
 		this.gems = this.game.add.group();
+		this.gems.enableBody = true;
 
 		for (var i = 0; i < this.game.BOARD_COLS; i++) {
 			for (var j = 0; j < this.game.BOARD_ROWS; j++) {
@@ -33,7 +39,9 @@ Match3Game.Game.prototype = {
 				gem.inputEnabled = true;
 		
 				// gem.input.enableDrag();
+				// gem.input.enableSnap(85, 85, false, true);
 				gem.events.onInputDown.add(this.selectGem, this);
+				gem.checked = false;
 						
 				this.randomizeGemColor(gem);
 				this.setGemPos(gem, i, j); // each gem has a position on the board
@@ -43,39 +51,50 @@ Match3Game.Game.prototype = {
 
 	// select a gem and remember its starting position
 	selectGem: function(gem, pointer){
-		if (this.game.allowInput) {
-			this.selectedGem = gem;
+		this.selectedGem = gem;
 
-			this.game.selectedGemStartPos.x = gem.posX;
-			this.game.selectedGemStartPos.y = gem.posY;
-		} 
+		if (this.selected[0] === undefined) {
+			this.selected[0] = this.selectedGem;
+		} else {
+			this.selected[1] = this.selectedGem;
 
-		// var index = this.selectedGemStartPos.x + this.selectedGemStartPos.y * this.game.BOARD_COLS;
-		var index = this.selectedGem.id;
-		var alphaLevel = 0.3;
-
-		if (this.firstPick == 0){
-			this.selectedGem.alpha = alphaLevel;
-			this.firstPick = 1;
-			prevIndex = index;
-			prevGem = this.selectedGem;
-		} else if (this.firstPick == 1){
-			if (prevIndex == index){
-				this.selectedGem.alpha = 1;
-				prevIndex = -1;
-				this.firstPick = 0;
-			}
-			else {
-				prevGem.alpha = 1;
-				prevGem = this.selectedGem;
-				prevIndex = index;
-				this.selectedGem.alpha = alphaLevel;
-
-				this.firstPick = 1;
-			}
-
+			this.swap(this.selected[0], this.selected[1]);
 		}
 
+		this.game.selectedGemStartPos.x = gem.posX;
+		this.game.selectedGemStartPos.y = gem.posY;
+	},
+
+	swap: function(elem1, elem2){
+		var duration = 250;
+		var offset = this.game.GEM_SIZE_SPACED;
+
+		if (elem2.id - elem1.id == 1){
+			this.game.add.tween(elem1.body).to({ x: elem1.x + offset }, duration, Phaser.Easing.Linear.None, true);
+			this.game.add.tween(elem2.body).to({ x: elem2.x - offset }, duration, Phaser.Easing.Linear.None, true);
+
+		} else if (elem2.id - elem1.id == -1){
+			this.game.add.tween(elem1.body).to({ x: elem1.x - offset }, duration, Phaser.Easing.Linear.None, true);
+			this.game.add.tween(elem2.body).to({ x: elem2.x + offset }, duration, Phaser.Easing.Linear.None, true);
+
+		} else if (elem2.id - elem1.id == this.game.BOARD_COLS){
+			this.game.add.tween(elem1.body).to({ y: elem1.y + offset }, duration, Phaser.Easing.Linear.None, true);
+			this.game.add.tween(elem2.body).to({ y: elem2.y - offset }, duration, Phaser.Easing.Linear.None, true);
+
+		} else if (elem2.id - elem1.id == -this.game.BOARD_COLS){
+			this.game.add.tween(elem1.body).to({ y: elem1.y - offset }, duration, Phaser.Easing.Linear.None, true);
+			this.game.add.tween(elem2.body).to({ y: elem2.y + offset }, duration, Phaser.Easing.Linear.None, true);
+
+		} else {
+			this.selected = [];
+			return;
+		}
+
+		var temp = elem1.id;
+		elem1.id = elem2.id;
+		elem2.id = temp;
+
+		this.selected = [];
 	},
 
 	// find a gem on the board according to its position on the board
@@ -98,7 +117,7 @@ Match3Game.Game.prototype = {
 	// the gem id is used by getGem() to find specific gems in the group
 	// each position on the board has a unique id
 	calcGemId: function(posX, posY) {
-		// console.log(this);
+		// console.log(posX, posY, posX + posY * this.game.BOARD_COLS);
 		return posX + posY * this.game.BOARD_COLS;
 	},
 
