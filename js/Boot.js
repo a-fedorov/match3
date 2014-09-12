@@ -10,8 +10,6 @@ Match3Game.Boot.prototype = {
 	create: function(){
 		this.game.stage.backgroundColor = '#fff';
 
-		this.game.physics.startSystem(Phaser.Physics.ARCADE);
-
 		this.game.GEM_SIZE = 80;
 		this.game.GEM_SPACING = 5;
 		this.game.GEM_SIZE_SPACED = this.game.GEM_SIZE + this.game.GEM_SPACING;
