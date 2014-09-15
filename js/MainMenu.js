@@ -19,7 +19,7 @@ Match3Game.MainMenu.prototype = {
     t.anchor.set(0.5);
 
     //highest score
-    text = "Highest score: "+this.highestScore;
+    text = "Highest score: " + this.highestScore;
     style = { font: "20px Arial", fill: "#fff", align: "center" };
 
     var h = this.game.add.text(this.game.width/2, this.game.height/2 - 25, text, style);
