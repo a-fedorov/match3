@@ -52,8 +52,9 @@ Match3Game.Game.prototype = {
 
 	    		this.removeKilledGems();
 
+
 	    		var dropGemDuration = this.dropGems();
-	    		this.game.time.events.add(dropGemDuration * 5, this.refillBoard, this); // delay board refilling until all existing gems have dropped down
+	    		this.game.time.events.add(dropGemDuration * 1, this.refillBoard, this); // delay board refilling until all existing gems have dropped down
 
 		    	this.selectedGem = null;
 		    	this.tempShiftedGem = null;
@@ -62,6 +63,7 @@ Match3Game.Game.prototype = {
 		}
 
 		// check if a selected gem should be moved and do it
+
 		if (this.selectedGem != null) {
 
 			var cursorGemPosX = this.getGemPos(this.game.input.mousePointer.x);
@@ -74,14 +76,13 @@ Match3Game.Game.prototype = {
 	    			if (this.selectedGemTween != null) {
 	    				this.game.tweens.remove(this.selectedGemTween);
 	    			}
-
 	    			this.selectedGemTween = this.tweenGemPos(this.selectedGem, cursorGemPosX, cursorGemPosY);
 		    		this.gems.bringToTop(this.selectedGem);
 
 		    		// if we moved a gem to make way for the selected gem earlier, move it back into its starting position
 		    		if (this.tempShiftedGem != null) {
 		    			this.tweenGemPos(this.tempShiftedGem, this.selectedGem.posX , this.selectedGem.posY);
-	    				this.swapGemPosition(this.selectedGem, this.tempShiftedGem);
+	    				// this.swapGemPosition(this.selectedGem, this.tempShiftedGem);
 		    		}
 
 		    		// when the player moves the selected gem, we need to swap the position of the selected gem with the gem currently in that position 
@@ -319,7 +320,6 @@ Match3Game.Game.prototype = {
 	getScore: function() {
 		return this.score;
 	},
-	
 
 	render: function() {
 	    this.scoreLabel.setText('Score: ' + this.getScore());
