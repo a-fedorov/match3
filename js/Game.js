@@ -5,7 +5,7 @@ Match3Game.Game = function(){};
 Match3Game.Game.prototype = {
 	preload: function(){
 		this.selectedGem = null;
-		
+
 	    // currently selected gem starting position. used to stop player form moving gems too far.
 		this.selectedGemStartPos = {x: 0, y: 0};
 
@@ -37,14 +37,13 @@ Match3Game.Game.prototype = {
 	    		this.checkAndKillGemMatches(this.selectedGem);
 
 	    		if (this.tempShiftedGem != null) {
-	    			console.log('update');
 		    		this.checkAndKillGemMatches(this.tempShiftedGem);
 	    		}
 
 	    		this.removeKilledGems();
 
 	    		var dropGemDuration = this.dropGems();
-	    		this.game.time.events.add(100, this.refillBoard, this); // delay board refilling until all existing gems have dropped down
+	    		this.game.time.events.add(dropGemDuration * 50, this.refillBoard, this); // delay board refilling until all existing gems have dropped down
 	    		// this.refillBoard();
 
 	    		// this.allowInput = false;
@@ -70,7 +69,7 @@ Match3Game.Game.prototype = {
 	    				this.game.tweens.remove(this.selectedGemTween);
 	    			}
 	    			this.selectedGemTween = this.tweenGemPos(this.selectedGem, cursorGemPosX, cursorGemPosY);
-		    		// this.gems.bringToTop(this.selectedGem);
+		    		this.gems.bringToTop(this.selectedGem);
 
 		    		// if we moved a gem to make way for the selected gem earlier, move it back into its starting position
 		    		if (this.tempShiftedGem != null) {
