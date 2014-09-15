@@ -12,6 +12,8 @@ Match3Game.Game.prototype = {
 		this.selectedGemTween = null;
 		this.tempShiftedGem = null;
 		this.tempShiftedGemTween = null;
+
+		this.score = 0;
 	},
 
 	create: function() {
@@ -19,6 +21,14 @@ Match3Game.Game.prototype = {
 		this.spawnBoard();
 		
 		this.selectedGemStartPos = {x: 0, y: 0};
+		this.scoreLabelStyle = {
+			font: '30px Arial', 
+			fill: '#ffffff',
+			align: 'left',
+			fontWeight: 'bold'
+		};
+		this.scoreLabel = this.game.add.text(32, 32, "Score: 0", this.scoreLabelStyle);
+		this.scoreLabel.setShadow(15, 15, 'rgba(0,0,0,0.5)', 15);
 	},
 
 	update: function() {
@@ -43,10 +53,7 @@ Match3Game.Game.prototype = {
 	    		this.removeKilledGems();
 
 	    		var dropGemDuration = this.dropGems();
-	    		this.game.time.events.add(dropGemDuration * 50, this.refillBoard, this); // delay board refilling until all existing gems have dropped down
-	    		// this.refillBoard();
-
-	    		// this.allowInput = false;
+	    		this.game.time.events.add(dropGemDuration * 5, this.refillBoard, this); // delay board refilling until all existing gems have dropped down
 
 		    	this.selectedGem = null;
 		    	this.tempShiftedGem = null;
@@ -55,7 +62,6 @@ Match3Game.Game.prototype = {
 		}
 
 		// check if a selected gem should be moved and do it
-
 		if (this.selectedGem != null) {
 
 			var cursorGemPosX = this.getGemPos(this.game.input.mousePointer.x);
@@ -68,6 +74,7 @@ Match3Game.Game.prototype = {
 	    			if (this.selectedGemTween != null) {
 	    				this.game.tweens.remove(this.selectedGemTween);
 	    			}
+
 	    			this.selectedGemTween = this.tweenGemPos(this.selectedGem, cursorGemPosX, cursorGemPosY);
 		    		this.gems.bringToTop(this.selectedGem);
 
@@ -109,11 +116,9 @@ Match3Game.Game.prototype = {
 
 	// select a gem and remember its starting position
 	selectGem: function(gem, pointer) {
-		// if (this.allowInput) {
-			this.selectedGem = gem;
-			this.selectedGemStartPos.x = gem.posX;
-			this.selectedGemStartPos.y = gem.posY;
-		// }
+		this.selectedGem = gem;
+		this.selectedGemStartPos.x = gem.posX;
+		this.selectedGemStartPos.y = gem.posY;
 	},
 
 	// find a gem on the board according to its position on the board
@@ -209,10 +214,12 @@ Match3Game.Game.prototype = {
 			var countVert = countUp + countDown + 1;
 
 			if (countVert >= this.game.MATCH_MIN) {
+				this.score += countVert;
 				this.killGemRange(gem.posX, gem.posY - countUp, gem.posX, gem.posY + countDown);
 			}
 
 			if (countHoriz >= this.game.MATCH_MIN) {
+				this.score += countHoriz;
 				this.killGemRange(gem.posX - countLeft, gem.posY, gem.posX + countRight, gem.posY);
 			}
 
@@ -307,6 +314,15 @@ Match3Game.Game.prototype = {
 	// when the board has finished refilling, re-enable player input
 	boardRefilled: function() {
 		this.allowInput = true;
+	},
+
+	getScore: function() {
+		return this.score;
+	},
+	
+
+	render: function() {
+	    this.scoreLabel.setText('Score: ' + this.getScore());
 	}
 
 }
