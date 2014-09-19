@@ -16,31 +16,37 @@ Match3Game.Game.prototype = {
 
 		this.score = 0;
 		this.selectedOnce = false;
-
-		this.firstPick = 0;
-		this.prevIndex = -1;
-		this.prevGem = null;
 	},
 
 	create: function() {
+    this.game.world.y = 60;
+
 		// fill the screen with as many gems as possible
 		this.spawnBoard();
 		
-		this.scoreLabelStyle = {
-			font: '30px Arial', 
-			fill: '#ffffff',
-			align: 'left',
-			fontWeight: 'bold'
-		};
-		this.scoreLabel = this.game.add.text(32, 0, "Score: 0", this.scoreLabelStyle);
-		this.scoreLabel.setShadow(15, 15, 'rgba(0,0,0,0.8)', 15);
+		// this.scoreLabelStyle = {
+		// 	font: '30px Arial', 
+		// 	fill: '#ffffff',
+		// 	align: 'left',
+		// 	fontWeight: 'bold'
+		// };
+		// this.scoreLabel = this.game.add.text(32, 0, "Score: 0", this.scoreLabelStyle);
+		// this.scoreLabel.setShadow(15, 15, 'rgba(0,0,0,0.8)', 15);
+
+		this.scoreValue = document.getElementById('score');
 	},
 
 	updateScore: function(){
-		this.scoreLabel.setText("Score: " + this.getScore());
+		// this.scoreLabel.setText("Score: " + this.getScore());
+		this.scoreValue.style.fontSize = 30 + 'px';
+		this.scoreValue.innerHTML = 'Score: ' + this.getScore();
 	},
 
 	update: function() {
+
+		// if (this.game.width != window.innerWidth){
+		// 	this.game.width = window.innerWidth;
+		// }
 
 		// when the mouse is released with a gem selected
 		// 1) check for matches
@@ -48,14 +54,14 @@ Match3Game.Game.prototype = {
 		// 3) drop down gems above removed gems
 		// 4) refill the board
 
-		if (this.game.input.mousePointer.justReleased()) {
+// if (this.game.input.mousePointer.justClicked()){}
 
+		if (this.game.input.mousePointer.justReleased()) {
 			if (this.selectedGem != null) {
 	    		this.checkAndKillGemMatches(this.selectedGem);
 
 	    		if (this.tempShiftedGem != null) {
 		    		// this.checkAndKillGemMatches(this.tempShiftedGem);
-	    			console.log('1')
 	    		}
 
 	    		this.removeKilledGems();
@@ -90,25 +96,16 @@ Match3Game.Game.prototype = {
 		    		// if we moved a gem to make way for the selected gem earlier, move it back into its starting position
 		    		if (this.tempShiftedGem != null) {
 		    			this.tweenGemPos(this.tempShiftedGem, this.selectedGem.posX , this.selectedGem.posY);
-	    				// this.swapGemPosition(this.selectedGem, this.tempShiftedGem);
-	    				// this.swapGemPosition(this.tempShiftedGem, this.selectedGem);
-		    			console.log(this.selectedGem.id, this.tempShiftedGem.id)
-
+	    				this.swapGemPosition(this.selectedGem, this.tempShiftedGem);
 		    		}
 
 		    		// when the player moves the selected gem, we need to swap the position of the selected gem with the gem currently in that position 
 		    		this.tempShiftedGem = this.getGem(cursorGemPosX, cursorGemPosY);
 	    			
-	    			// console.log(this.selectedGem.id, this.tempShiftedGem.id)
-
 		    		if (this.tempShiftedGem == this.selectedGem) {
 		    			this.tempShiftedGem = null;
-		    		// 	// console.log(this.selectedGem.id, this.tempShiftedGem.id)
 
 		    		} else {
-		    			console.log(this.selectedGem.id, this.tempShiftedGem.id)
-
-		    		// 	// console.log(this.selectedGem.id, this.tempShiftedGem.id)
 			    		this.tweenGemPos(this.tempShiftedGem, this.selectedGem.posX, this.selectedGem.posY);
 		    			this.swapGemPosition(this.tempShiftedGem, this.selectedGem);
 		    		}
@@ -123,7 +120,7 @@ Match3Game.Game.prototype = {
 		this.game.BOARD_ROWS = Phaser.Math.floor(this.game.world.height / this.game.GEM_SIZE_SPACED);
 		this.gems = this.game.add.group();
 		this.gems.enableBody = true;
-		this.gems.physicsBodyType = Phaser.Physics.ARCADE;
+		// this.gems.physicsBodyType = Phaser.Physics.ARCADE;
 
 		for (var i = 0; i < this.game.BOARD_COLS; i++) {
 			for (var j = 0; j < this.game.BOARD_ROWS; j++) {
@@ -312,8 +309,6 @@ Match3Game.Game.prototype = {
 			}
 			dropRowCountMax = Math.max(dropRowCount, dropRowCountMax);
 		}
-
-		// this.selectedGem.alpha = 1;
 
 		return dropRowCountMax;
 	},
