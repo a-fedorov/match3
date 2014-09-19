@@ -5,6 +5,7 @@ Match3Game.Game = function(){};
 Match3Game.Game.prototype = {
 	preload: function(){
 		this.selectedGem = null;
+		this.selectedGems = [];
 
 	    // currently selected gem starting position. used to stop player form moving gems too far.
 		this.selectedGemStartPos = {x: 0, y: 0};
@@ -14,21 +15,29 @@ Match3Game.Game.prototype = {
 		this.tempShiftedGemTween = null;
 
 		this.score = 0;
+		this.selectedOnce = false;
+
+		this.firstPick = 0;
+		this.prevIndex = -1;
+		this.prevGem = null;
 	},
 
 	create: function() {
 		// fill the screen with as many gems as possible
 		this.spawnBoard();
 		
-		this.selectedGemStartPos = {x: 0, y: 0};
 		this.scoreLabelStyle = {
 			font: '30px Arial', 
 			fill: '#ffffff',
 			align: 'left',
 			fontWeight: 'bold'
 		};
-		this.scoreLabel = this.game.add.text(32, 32, "Score: 0", this.scoreLabelStyle);
-		this.scoreLabel.setShadow(15, 15, 'rgba(0,0,0,0.5)', 15);
+		this.scoreLabel = this.game.add.text(32, 0, "Score: 0", this.scoreLabelStyle);
+		this.scoreLabel.setShadow(15, 15, 'rgba(0,0,0,0.8)', 15);
+	},
+
+	updateScore: function(){
+		this.scoreLabel.setText("Score: " + this.getScore());
 	},
 
 	update: function() {
@@ -41,16 +50,16 @@ Match3Game.Game.prototype = {
 
 		if (this.game.input.mousePointer.justReleased()) {
 
-			
 			if (this.selectedGem != null) {
-
 	    		this.checkAndKillGemMatches(this.selectedGem);
 
 	    		if (this.tempShiftedGem != null) {
-		    		this.checkAndKillGemMatches(this.tempShiftedGem);
+		    		// this.checkAndKillGemMatches(this.tempShiftedGem);
+	    			console.log('1')
 	    		}
 
 	    		this.removeKilledGems();
+	    		this.updateScore();
 
 
 	    		var dropGemDuration = this.dropGems();
@@ -59,7 +68,6 @@ Match3Game.Game.prototype = {
 		    	this.selectedGem = null;
 		    	this.tempShiftedGem = null;
 			}
-
 		}
 
 		// check if a selected gem should be moved and do it
@@ -83,15 +91,26 @@ Match3Game.Game.prototype = {
 		    		if (this.tempShiftedGem != null) {
 		    			this.tweenGemPos(this.tempShiftedGem, this.selectedGem.posX , this.selectedGem.posY);
 	    				// this.swapGemPosition(this.selectedGem, this.tempShiftedGem);
+	    				// this.swapGemPosition(this.tempShiftedGem, this.selectedGem);
+		    			console.log(this.selectedGem.id, this.tempShiftedGem.id)
+
 		    		}
 
 		    		// when the player moves the selected gem, we need to swap the position of the selected gem with the gem currently in that position 
 		    		this.tempShiftedGem = this.getGem(cursorGemPosX, cursorGemPosY);
+	    			
+	    			// console.log(this.selectedGem.id, this.tempShiftedGem.id)
+
 		    		if (this.tempShiftedGem == this.selectedGem) {
 		    			this.tempShiftedGem = null;
+		    		// 	// console.log(this.selectedGem.id, this.tempShiftedGem.id)
+
 		    		} else {
+		    			console.log(this.selectedGem.id, this.tempShiftedGem.id)
+
+		    		// 	// console.log(this.selectedGem.id, this.tempShiftedGem.id)
 			    		this.tweenGemPos(this.tempShiftedGem, this.selectedGem.posX, this.selectedGem.posY);
-		    			this.swapGemPosition(this.selectedGem, this.tempShiftedGem);
+		    			this.swapGemPosition(this.tempShiftedGem, this.selectedGem);
 		    		}
 		    	}
 		    }
@@ -103,6 +122,8 @@ Match3Game.Game.prototype = {
 		this.game.BOARD_COLS = Phaser.Math.floor(this.game.world.width / this.game.GEM_SIZE_SPACED);
 		this.game.BOARD_ROWS = Phaser.Math.floor(this.game.world.height / this.game.GEM_SIZE_SPACED);
 		this.gems = this.game.add.group();
+		this.gems.enableBody = true;
+		this.gems.physicsBodyType = Phaser.Physics.ARCADE;
 
 		for (var i = 0; i < this.game.BOARD_COLS; i++) {
 			for (var j = 0; j < this.game.BOARD_ROWS; j++) {
@@ -115,9 +136,9 @@ Match3Game.Game.prototype = {
 		}
 	},
 
-	// select a gem and remember its starting position
-	selectGem: function(gem, pointer) {
+	selectGem: function(gem, pointer){
 		this.selectedGem = gem;
+
 		this.selectedGemStartPos.x = gem.posX;
 		this.selectedGemStartPos.y = gem.posY;
 	},
@@ -202,7 +223,7 @@ Match3Game.Game.prototype = {
 	// count how many gems of the same color are above, below, to the left and right
 	// if there are more than 3 matched horizontally or vertically, kill those gems
 	// if no match was made, move the gems back into their starting positions
-	checkAndKillGemMatches: function(gem, matchedGems) {
+	checkAndKillGemMatches: function(gem) {
 
 		if (gem != null) {
 
@@ -272,7 +293,7 @@ Match3Game.Game.prototype = {
 
 			var duration = 200;
 		}
-		return this.game.add.tween(gem).to({x: newPosX  * this.game.GEM_SIZE_SPACED, y: newPosY * this.game.GEM_SIZE_SPACED}, durationMultiplier * 120, Phaser.Easing.Linear.None, true);   			
+		return this.game.add.tween(gem.body).to({x: newPosX  * this.game.GEM_SIZE_SPACED, y: newPosY * this.game.GEM_SIZE_SPACED}, durationMultiplier * 120, Phaser.Easing.Cubic.None, true);   			
 	},
 
 	// look for gems with empty space beneath them and move them down
@@ -291,6 +312,9 @@ Match3Game.Game.prototype = {
 			}
 			dropRowCountMax = Math.max(dropRowCount, dropRowCountMax);
 		}
+
+		// this.selectedGem.alpha = 1;
+
 		return dropRowCountMax;
 	},
 
@@ -310,6 +334,7 @@ Match3Game.Game.prototype = {
 				}
 			}
 		}
+
 	},
 
 	// when the board has finished refilling, re-enable player input
@@ -322,7 +347,7 @@ Match3Game.Game.prototype = {
 	},
 
 	render: function() {
-	    this.scoreLabel.setText('Score: ' + this.getScore());
+		this.updateScore();
 	}
 
 }
