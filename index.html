@@ -12,13 +12,39 @@
 
         <style>
             body {
-                /*width: 800px;*/
+                background-color: #eee;
                 margin: 0;
-                /*margin-top: 100px; */
             }
+
+            #game {
+                position:  relative;
+                text-align: center;
+                background-color: #eee;
+                margin: 0;
+            }
+
+            canvas {
+                margin: auto;
+            }
+
+            #score{
+                margin: 0;
+                padding: 10px 0;
+
+                background-color: #222;     
+
+                color: #eee;
+                font-size:0;
+                font-family: sans-serif;  
+                
+            }
+
         </style>
+        <script src="js/main.js"></script>
     </head>
     <body>
-        <script src="js/main.js"></script>
+        <div id="game">
+            <div id="score">Score: 0</div>
+        </div>
     </body>
 </html>
